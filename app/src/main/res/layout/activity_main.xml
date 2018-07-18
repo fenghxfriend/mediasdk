@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="cn.paomiantv.test.MainActivity">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <!--<cn.paomiantv.mediasdk.rendernder.PMTextureView&ndash;&gt;-->
+        <!--android:layout_alignParentBottom="true"-->
+        <!--android:layout_centerHorizontal="true"-->
+        <!--android:id="@+id/id_textureview"-->
+        <!--android:layout_width="270dp"-->
+        <!--android:layout_height="480dp" />-->
+        <cn.paomiantv.mediasdk.PMPlayer
+            android:id="@+id/id_player"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true" />
+
+        <ImageView
+            android:id="@+id/thumb"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:scaleType="fitXY"
+            android:src="@android:color/transparent"
+            android:visibility="gone" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp">
+
+            <Button
+                android:id="@+id/btn_save"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="save" />
+
+            <Button
+                android:id="@+id/btn_change_filter_null"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="changenull" />
+
+            <Button
+                android:id="@+id/btn_change_filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="change" />
+
+            <Button
+                android:id="@+id/btn_seek"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="seek" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp">
+
+            <Button
+                android:id="@+id/btn_preview_start"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="start"
+                android:textSize="10sp" />
+
+            <Button
+                android:id="@+id/btn_preview_stop"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="stop"
+                android:textSize="10sp" />
+
+            <Button
+                android:id="@+id/btn_preview_pause"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="pause"
+                android:textSize="10sp" />
+
+            <Button
+                android:id="@+id/btn_preview_resume"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="resume"
+                android:textSize="10sp" />
+
+            <Button
+                android:id="@+id/btn_preview_seekto"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="seekto"
+                android:textSize="10sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp">
+
+            <TextView
+                android:id="@+id/tv_track_id"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="trackID" />
+
+            <EditText
+                android:id="@+id/et_track_id"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="0"
+                android:textStyle="normal" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="volume" />
+
+            <EditText
+                android:id="@+id/et_volume"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="100"
+                android:textStyle="normal" />
+
+            <Button
+                android:id="@+id/btn_volume"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="volume"
+                android:textSize="10sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp">
+
+            <TextView
+                android:id="@+id/tv_progress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_weight="1"
+                android:text="0"
+                android:textColor="@color/colorAccent" />
+
+            <Button
+                android:id="@+id/btn_release"
+                android:layout_width="60dp"
+                android:layout_height="wrap_content"
+                android:text="release"
+                android:textSize="6sp" />
+            <Button
+                android:id="@+id/btn_init_single"
+                android:layout_width="60dp"
+                android:layout_height="wrap_content"
+                android:text="single"
+                android:textSize="6sp" />
+
+            <Button
+                android:id="@+id/btn_init_normal"
+                android:layout_width="60dp"
+                android:layout_height="wrap_content"
+                android:text="normal"
+                android:textSize="6sp" />
+
+            <Button
+                android:id="@+id/btn_init_cartoon"
+                android:layout_width="60dp"
+                android:layout_height="wrap_content"
+                android:text="cartoon"
+                android:textSize="6sp" />
+            <Button
+                android:id="@+id/btn_init_mask"
+                android:layout_width="60dp"
+                android:layout_height="wrap_content"
+                android:text="mask"
+                android:textSize="6sp" />
+        </LinearLayout>
+
+
+        <!--<cn.paomiantv.mediasdk.rendernder.PMGLSurfaceView&ndash;&gt;-->
+        <!--android:id="@+id/glv_player"-->
+        <!--android:layout_width="1280px"-->
+        <!--android:layout_height="720px"-->
+        <!--android:visibility="gone"/>-->
+    </LinearLayout>
+
+
+</android.support.constraint.ConstraintLayout>

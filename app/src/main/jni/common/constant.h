@@ -1,0 +1,55 @@
+#ifndef _PAOMIANTV_CONTSTANT_H_
+#define _PAOMIANTV_CONTSTANT_H_
+
+//default safe queue size
+#define BLOCK_QUEUE_SIZE 5
+
+#define MAX_LEN_FILE_PATH 1024
+
+#define MAX_LEN_MP4_DESCRIPTION 8096
+//video
+#define MAX_VIDEO_WIDTH 854
+#define MAX_VIDEO_HEIGHT 480
+#define MAX_VIDEO_FRAME_BUFFER_SIZE (MAX_VIDEO_WIDTH * MAX_VIDEO_HEIGHT * 3 / 2) //YUV420
+#define MAX_FRAME_SIZE (MAX_VIDEO_FRAME_BUFFER_SIZE * 6)
+
+#define MAX_SPS_SIZE 4096
+#define MAX_PPS_SIZE 4096
+//audio
+
+#define MAX_ESDS_SIZE 8 // esds size is 2
+
+#define MAX_ADTS_SIZE 7
+
+//encoder
+#define AUDIO_MIME_TYPE "audio/mp4a-latm"
+#define AUDIO_CHANNEL_COUNT 2
+#define AUDIO_SAMPLE_FREQUENCY 44100
+#define AUDIO_SAMPLE_BITS 16
+#define AUDIO_BIT_RATE 128*1024
+#define AUDIO_AAC_PROFILE 2 //aacLC
+
+
+#define AUDIO_SAMPLE_COUNT_PER_FRAME 1024
+#define MAX_AUDIO_FRAME_BUFFER_SIZE (1024 * 2 * 2) //Stereo, aac, 16bit
+
+
+#define VIDEO_MIME_TYPE "video/avc"
+#define VIDEO_FRAME_RATE 30
+#define VIDEO_FRAME_MIN_DURATION (1000 * 1000 / VIDEO_FRAME_RATE)
+#define VIDEO_BIT_RATE 2*1024*1024
+#define VIDEO_I_FRAME_INTERVAL 1 //1 second 1 key frame
+#define VIDEO_AVC_PROFILE 0x02 //avc main
+#define VIDEO_AVC_LEVEL 0x200 //avc 31
+
+#define INTEGER32_MAX_VALUE 0x7fffffff
+#define UNSIGNED_INTEGER32_MAX_VALUE 0xffffffff
+#define INTEGER64_MAX_VALUE 0x7fffffffffffffff
+
+#define MAX_LEN_MIME 32
+
+#define MAX_LEN_FILTER_NAME 32
+
+#define CLASS_NAME_MAX 100
+
+#endif

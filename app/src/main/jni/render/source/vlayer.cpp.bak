@@ -1,0 +1,336 @@
+//
+// Created by ASUS on 2017/12/28.
+//
+
+#include <algorithm>
+#include "vlayer.h"
+
+namespace paomiantv {
+
+    CVLayer::CVLayer() : m_ptHead(NULL), m_ptTail(NULL), m_uFilterSize(0), m_nHeight(0),
+                         m_nWidth(0) {
+        m_pLock = new CLock;
+        reset();
+    }
+
+    CVLayer::~CVLayer() {
+        reset();
+        if (m_pLock != NULL) {
+            delete m_pLock;
+            m_pLock = NULL;
+        }
+    }
+
+    void CVLayer::clearFilters() {
+        CAutoLock autoLock(m_pLock);
+        TVFilterNode *tmp = NULL;
+        while (m_ptHead != NULL) {
+            tmp = m_ptHead;
+            m_ptHead = tmp->m_ptNext;
+            deleteFrameBuffers(tmp->m_uFrameBuffer, tmp->m_uDepthBuffer,
+                               tmp->m_pcFrameBufferTexture);
+            if (tmp->m_pcFilter != NULL) {
+                delete tmp->m_pcFilter;
+            }
+            delete tmp;
+        }
+        m_ptHead = NULL;
+        m_ptTail = NULL;
+        m_uFilterSize = 0;
+    }
+
+    void CVLayer::reset() {
+        CAutoLock autoLock(m_pLock);
+        clearFilters();
+        m_nWidth = 0;
+        m_nHeight = 0;
+    }
+
+    void CVLayer::updateLayerSize(u32 uGLWidth, u32 uGLHeight) {
+        CAutoLock autoLock(m_pLock);
+        m_nWidth = uGLWidth;
+        m_nHeight = uGLHeight;
+        TVFilterNode *tmp = m_ptHead;
+        while (tmp != NULL && tmp != m_ptTail) {
+            if (tmp->m_pcFilter != NULL) {
+                tmp->m_pcFilter->changeOutputSize(uGLWidth, uGLHeight);
+            }
+            if (tmp->m_pcFrameBufferTexture != NULL) {
+                tmp->m_pcFrameBufferTexture->fillTexture(NULL, uGLWidth, uGLHeight);
+            }
+            tmp = tmp->m_ptNext;
+        }
+
+
+    }
+
+    BOOL32 CVLayer::pushFilter(CVFilter *pcFilter) {
+        CAutoLock autoLock(m_pLock);
+        if (pcFilter == NULL || pcFilter->getOutputHeight() == 0 ||
+            pcFilter->getOutputWidth() == 0) {
+            LOGW("filter do not initialize");
+            return FALSE;
+        }
+        TVFilterNode *node = new TVFilterNode;
+        node->m_pcFilter = pcFilter;
+        if (m_ptHead == NULL) {
+            m_ptHead = node;
+            m_ptTail = node;
+        } else {
+            addFrameBuffers(m_ptTail->m_uFrameBuffer, m_ptTail->m_uDepthBuffer,
+                            m_ptTail->m_pcFrameBufferTexture);
+            m_ptTail->m_ptNext = node;
+            node->m_ptPre = m_ptTail;
+            m_ptTail = node;
+        }
+        m_uFilterSize++;
+        return TRUE;
+    }
+
+    BOOL32 CVLayer::popFilter(CVFilter *&pcFilter) {
+        CAutoLock autoLock(m_pLock);
+        if (m_uFilterSize == 0 || m_ptTail == NULL) {
+//            LOGW("list size is 0");
+            pcFilter = NULL;
+            return FALSE;
+        } else {
+            pcFilter = m_ptTail->m_pcFilter;
+            if (m_uFilterSize == 1) {
+                deleteFrameBuffers(m_ptTail->m_uFrameBuffer, m_ptTail->m_uDepthBuffer,
+                                   m_ptTail->m_pcFrameBufferTexture);
+                delete m_ptTail;
+                m_ptTail = NULL;
+                m_ptHead = NULL;
+            } else {
+                TVFilterNode *tmp = m_ptTail;
+                m_ptTail = tmp->m_ptPre;
+                m_ptTail->m_ptNext = NULL;
+                deleteFrameBuffers(m_ptTail->m_uFrameBuffer, m_ptTail->m_uDepthBuffer,
+                                   m_ptTail->m_pcFrameBufferTexture);
+                deleteFrameBuffers(tmp->m_uFrameBuffer, tmp->m_uDepthBuffer,
+                                   tmp->m_pcFrameBufferTexture);
+                pcFilter = tmp->m_pcFilter;
+                delete tmp;
+            }
+        }
+        m_uFilterSize--;
+        return TRUE;
+    }
+
+    BOOL32 CVLayer::insertFilter(CVFilter *pcFilter, u32 index) {
+        CAutoLock autoLock(m_pLock);
+        if (pcFilter == NULL || pcFilter->getOutputHeight() == 0 ||
+            pcFilter->getOutputWidth() == 0) {
+            LOGW("filter do not initialize");
+            return FALSE;
+        }
+        TVFilterNode *node = new TVFilterNode;
+        node->m_pcFilter = pcFilter;
+        if (index >= m_uFilterSize) {
+            if (m_ptHead == NULL) {
+                m_ptHead = node;
+                m_ptTail = node;
+            } else {
+                addFrameBuffers(m_ptTail->m_uFrameBuffer, node->m_uDepthBuffer,
+                                m_ptTail->m_pcFrameBufferTexture);
+                m_ptTail->m_ptNext = node;
+                node->m_ptPre = m_ptTail;
+                m_ptTail = node;
+            }
+        } else {
+            TVFilterNode *curr = m_ptHead;
+            TVFilterNode *pre = curr == NULL ? NULL : curr->m_ptPre;
+            TVFilterNode *next = curr == NULL ? NULL : curr->m_ptNext;
+            while (index != 0 && curr != NULL && next != NULL) {
+                curr = curr->m_ptNext;
+                pre = curr == NULL ? NULL : curr->m_ptPre;
+                next = curr == NULL ? NULL : curr->m_ptNext;
+                index--;
+            }
+            if (curr == NULL) {
+                m_ptHead = node;
+                m_ptTail = node;
+            } else {
+                addFrameBuffers(node->m_uFrameBuffer, node->m_uDepthBuffer,
+                                node->m_pcFrameBufferTexture);
+                if (pre == NULL) {
+                    node->m_ptNext = curr;
+                    curr->m_ptPre = node;
+                    m_ptHead = node;
+                } else {
+                    node->m_ptNext = curr;
+                    node->m_ptPre = pre;
+                    curr->m_ptPre->m_ptNext = node;
+                    curr->m_ptPre = node;
+                }
+            }
+        }
+        m_uFilterSize++;
+        return TRUE;
+    }
+
+    BOOL32 CVLayer::removeFilter(CVFilter *&pcFilter, u32 index) {
+        CAutoLock autoLock(m_pLock);
+        if (m_uFilterSize == 0 || index >= m_uFilterSize || m_ptHead == NULL) {
+            LOGW("list size is 0 or index is not less than array size");
+            pcFilter = NULL;
+            return FALSE;
+        } else {
+            TVFilterNode *curr = m_ptHead;
+            TVFilterNode *pre = curr == NULL ? NULL : curr->m_ptPre;
+            TVFilterNode *next = curr == NULL ? NULL : curr->m_ptNext;
+            while (index != 0 && curr != NULL && next != NULL) {
+                curr = curr->m_ptNext;
+                pre = curr == NULL ? NULL : curr->m_ptPre;
+                next = curr == NULL ? NULL : curr->m_ptNext;
+                index--;
+            }
+            if (pre == NULL) {
+                if (next == NULL) {
+                    m_ptTail = NULL;
+                    m_ptHead = NULL;
+                } else {
+                    if (curr != NULL) {
+                        curr->m_ptNext->m_ptPre = NULL;
+                    }
+                    m_ptHead = next;
+                }
+            } else {
+                if (next == NULL) {
+                    if (curr != NULL) {
+                        curr->m_ptPre->m_ptNext = NULL;
+                    }
+                    m_ptTail = pre;
+                } else {
+                    if (curr != NULL) {
+                        curr->m_ptPre->m_ptNext = next;
+                        curr->m_ptNext->m_ptPre = pre;
+                    }
+                }
+            }
+            pcFilter = NULL;
+            if (curr != NULL) {
+                pcFilter = curr->m_pcFilter;
+                deleteFrameBuffers(curr->m_uFrameBuffer, curr->m_uDepthBuffer,
+                                   curr->m_pcFrameBufferTexture);
+                delete curr;
+                m_uFilterSize--;
+                return TRUE;
+            }
+        }
+        return FALSE;
+    }
+
+    BOOL32 CVLayer::getFilter(CVFilter *&pcFilter, u32 index) {
+        CAutoLock autoLock(m_pLock);
+        if (m_uFilterSize == 0 || index >= m_uFilterSize || m_ptHead == NULL) {
+            pcFilter = NULL;
+            return FALSE;
+        }
+        TVFilterNode *curr = m_ptHead;
+        TVFilterNode *next = curr == NULL ? NULL : curr->m_ptNext;
+        while (index != 0 && curr != NULL && next != NULL) {
+            curr = curr->m_ptNext;
+            next = curr == NULL ? NULL : curr->m_ptNext;
+            index--;
+        }
+        pcFilter = NULL;
+        if (curr != NULL) {
+            pcFilter = curr->m_pcFilter;
+            return TRUE;
+        }
+        return FALSE;
+    }
+
+
+    void CVLayer::addFrameBuffers(GLuint &uFrameBuffer, GLuint &uDepthBuffer,
+                                  CTexture *&pcFrameBufferTexture) {
+        if (m_nWidth == 0 || m_nHeight == 0) {
+            return;
+        }
+        deleteFrameBuffers(uFrameBuffer, uDepthBuffer, pcFrameBufferTexture);
+        pcFrameBufferTexture = new CTexture;
+        glGenFramebuffers(1, &uFrameBuffer);
+        glGenRenderbuffers(1, &(uDepthBuffer));
+
+        pcFrameBufferTexture->fillTexture(NULL, m_nWidth, m_nHeight);
+
+
+        glBindRenderbuffer(GL_RENDERBUFFER, uDepthBuffer);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, m_nWidth, m_nHeight);
+
+        glBindFramebuffer(GL_FRAMEBUFFER, uFrameBuffer);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
+                               pcFrameBufferTexture->getTextureId(), 0);
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER,
+                                  uDepthBuffer);
+
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glBindRenderbuffer(GL_RENDERBUFFER, 0);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
+
+    void CVLayer::deleteFrameBuffers(GLuint &uFrameBuffer, GLuint &uDepthBuffer,
+                                     CTexture *&pcFrameBufferTexture) {
+        if (pcFrameBufferTexture != NULL) {
+            delete pcFrameBufferTexture;
+            pcFrameBufferTexture = NULL;
+        }
+        if (uFrameBuffer != 0) {
+            glDeleteFramebuffers(1, &uFrameBuffer);
+            uFrameBuffer = 0;
+        }
+        if (uDepthBuffer != 0) {
+            glDeleteRenderbuffers(1, &uDepthBuffer);
+            uDepthBuffer = 0;
+        }
+    }
+
+    void CVLayer::draw(CTexture *pOriginTexture) {
+        CAutoLock autoLock(m_pLock);
+        CTexture *previousTexture = pOriginTexture;
+        TVFilterNode *curr = m_ptHead;
+        for (int i = 0; i < m_uFilterSize && curr != NULL; i++) {
+
+            const float *uv = NULL;
+            if (i == 0) {
+                uv = CVFilter::NORMALUV;
+            } else if (i == m_uFilterSize - 1) {
+                if (m_uFilterSize % 2 == 0) {
+                    uv = CVFilter::VFLIPUV;
+                } else {
+                    uv = CVFilter::NORMALUV;
+                }
+            } else {
+                uv = CVFilter::NORMALUV;
+            }
+
+            BOOL32 isNotLast = i < m_uFilterSize - 1;
+            if (isNotLast) {
+                glBindFramebuffer(GL_FRAMEBUFFER, curr->m_uFrameBuffer);
+                glViewport(0, 0, m_nWidth / 1, m_nHeight / 1);
+                glClearColor(0, 0, 0, 0);
+                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            } else {
+                glViewport(0, 0, m_nWidth, m_nHeight);
+                glClearColor(0, 0, 0, 0);
+                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+                static float *tmp = (float *) malloc(sizeof(CVFilter::NORMALUV));
+                memcpy(tmp, uv, sizeof(CVFilter::NORMALUV));
+                for (int j = 0; j < sizeof(CVFilter::NORMALUV) / sizeof(float); j++) {
+                    tmp[j] *= 1;
+                }
+                uv = tmp;
+            }
+
+            curr->m_pcFilter->draw(previousTexture, CVFilter::CUBE, DEFAULT_GRAPH_POINT_SIZE,
+                                   uv, DEFAULT_GRAPH_POINT_SIZE);
+
+            if (isNotLast) {
+                glBindFramebuffer(GL_FRAMEBUFFER, 0);
+                previousTexture = curr->m_pcFrameBufferTexture;
+            }
+            curr = curr->m_ptNext;
+        }
+    }
+}

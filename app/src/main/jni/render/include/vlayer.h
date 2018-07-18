@@ -1,0 +1,104 @@
+//
+// Created by ASUS on 2017/12/28.
+//
+
+#ifndef MEDIAENGINE_VLAYER_H
+#define MEDIAENGINE_VLAYER_H
+
+#include "texture.h"
+#include "vfilter.h"
+
+namespace paomiantv {
+
+    typedef struct tagVFilterNode {
+        CVFilter *m_pcFilter;
+        tagVFilterNode *m_ptPre;
+        tagVFilterNode *m_ptNext;
+        GLuint m_uFrameBuffer;
+        CTexture *m_pcFrameBufferTexture;
+    public:
+        tagVFilterNode() { memset(this, 0, sizeof(struct tagVFilterNode)); }
+    } TVFilterNode, *TPVFilterNode;
+
+    class CVLayer {
+    public:
+        CVLayer();
+
+        virtual ~CVLayer();
+
+        void reset();
+
+    public:
+
+        BOOL32 pushFilter(CVFilter *pcFilter);
+
+        BOOL32 insertFilter(CVFilter *pcFilter, u32 index);
+
+        BOOL32 popFilter(CVFilter *&pcFilter);
+
+        BOOL32 removeFilter(CVFilter *&pcFilter, u32 index);
+
+        BOOL32 getFilter(CVFilter *&pcFilter, u32 index);
+
+        inline u32 getFilterSize() const;
+
+        void clearFilters();
+
+        virtual void draw(CTexture *pOriginTexture);
+
+        virtual void updateLayerSize(u32 uGLWidth, u32 uGLHeight);
+
+        inline s32 getWidth() const;
+
+        inline s32 getHeight() const;
+
+    private:
+//        CTexture *m_pOriginTexture;
+
+//        //! image container width pixel
+//        float m_fStride;
+//        //! image container height pixel
+//        float m_fStrideHeight;
+//        //! crop image {l,r,t,b,f,b} (pixel) (crop[1]-crop[0] + 1 = image width, crop[3]-crop[2] + 1 = image height)
+//        float m_afCrop[EM_DIRECT_END * 3];
+//        //! scale {x,y,z}
+//        float m_afScale[EM_DIRECT_END];
+//        //! translate {x,y,z}
+//        float m_afTranslate[EM_DIRECT_END];
+//        //! rotate degree{x,y,z}(0-360-720...),x 围绕x轴旋转,y 围绕y轴旋转,z 围绕z轴旋转;此处我们进围绕z轴旋转
+//        float m_afRotate[EM_DIRECT_END];
+
+        //! filters for this layer
+        TVFilterNode *m_ptHead;
+        TVFilterNode *m_ptTail;
+        u32 m_uFilterSize;
+
+        ILock *m_pLock;
+
+        //the area width for our drawing on screen width pixel
+        s32 m_nWidth;
+        //the area height for our drawing on screen width pixel
+        s32 m_nHeight;
+
+//        static std::vector<CVLayer *> m_svPool;
+//        static CLock m_sLock;
+
+        void addFrameBuffers(GLuint &uFrameBuffer, CTexture *&pcFrameBufferTexture);
+
+        void deleteFrameBuffers(GLuint &uFrameBuffer, CTexture *&pcFrameBufferTexture);
+    };
+
+    inline s32 CVLayer::getWidth() const {
+        return m_nWidth;
+    }
+
+    inline s32 CVLayer::getHeight() const {
+        return m_nHeight;
+    }
+
+    inline u32 CVLayer::getFilterSize() const {
+        return m_uFilterSize;
+    }
+}
+
+#endif //MEDIAENGINE_VLAYER_H

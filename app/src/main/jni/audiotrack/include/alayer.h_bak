@@ -1,0 +1,103 @@
+//
+// Created by ASUS on 2018/4/17.
+//
+
+#ifndef MEDIAENGINE_ALAYER_H
+#define MEDIAENGINE_ALAYER_H
+
+
+#include <cstring>
+#include <autolock.h>
+#include <vector>
+#include <enum.h>
+#include "typedef.h"
+#include "filtercomplex.h"
+
+namespace paomiantv {
+//
+//    typedef struct tagAFilterComplexNode {
+//        CAFilterComplex *m_pcFilter;
+//        tagAFilterComplexNode *m_ptPre;
+//        tagAFilterComplexNode *m_ptNext;
+//    public:
+//        tagAFilterComplexNode() { memset(this, 0, sizeof(struct tagAFilterComplexNode)); }
+//    } TAFilterComplexNode, *TPAFilterComplexNode;
+//
+//    class CALayer {
+//    public:
+//        CALayer();
+//
+//        virtual ~CALayer();
+//
+//        /// 对象池机制
+//        /// 从对象池中分配LayerData对象
+//        static CALayer *create();
+//
+//        /// 将LayerData对象释放回对象池
+//        static void release(CALayer *layerData);
+//
+//        /// 清空LayerData对象池
+//        static void clear();
+//
+//        void reset();
+//
+//    public:
+//
+//        BOOL32 pushFilter(CAFilterComplex *pcFilter);
+//
+//        BOOL32 insertFilter(CAFilterComplex *pcFilter, u32 index);
+//
+//        BOOL32 popFilter(CAFilterComplex *&pcFilter);
+//
+//        BOOL32 removeFilter(CAFilterComplex *&pcFilter, u32 index);
+//
+//        BOOL32 getFilter(CAFilterComplex *&pcFilter, u32 index);
+//
+//        inline u32 getFilterSize() const;
+//
+//        void clearFilters();
+//
+//        virtual void process(AVFrame *pFrame);
+//
+//        inline EMSampleRate getSampleRate() const;
+//
+//        inline u8 getChannelCount() const;
+//
+//        inline u8 getBitsPerSample() const;
+//
+//    private:
+//
+//        //! filters for this layer
+//        TAFilterComplexNode *m_ptHead;
+//        TAFilterComplexNode *m_ptTail;
+//        u32 m_uFilterSize;
+//
+//        ILock *m_pLock;
+//
+//        EMSampleRate m_eSampleRate;
+//        u8 m_byChannel;
+//        u8 m_byBitsPerSample;
+//
+//        static std::vector<CALayer *> m_svPool;
+//        static CLock m_sLock;
+//    };
+//
+//    inline EMSampleRate CALayer::getSampleRate() const {
+//        return m_eSampleRate;
+//    }
+//
+//    inline u8 CALayer::getChannelCount() const {
+//        return m_byChannel;
+//    }
+//
+//    inline u8 CALayer::getBitsPerSample() const {
+//        return m_byBitsPerSample;
+//    }
+//
+//    inline u32 CALayer::getFilterSize() const {
+//        return m_uFilterSize;
+//    }
+}
+
+
+#endif //MEDIAENGINE_ALAYER_H

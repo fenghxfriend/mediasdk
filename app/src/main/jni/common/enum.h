@@ -1,0 +1,146 @@
+//
+// Created by ASUS on 2018/1/30.
+//
+
+#ifndef MEDIAENGINE_STRUCT_H
+#define MEDIAENGINE_STRUCT_H
+namespace paomiantv {
+
+    typedef enum {
+        EM_MESSAGE_ID_START,
+        EM_MESSAGE_ID_V_DECODE_COMPLETE,
+        EM_MESSAGE_ID_A_DECODE_COMPLETE,
+        EM_MESSAGE_ID_V_RENDER_PROGRESS,
+        EM_MESSAGE_ID_A_PLAY_PROGRESS,
+        EM_MESSAGE_ID_V_RENDER_COMPLETE,
+        EM_MESSAGE_ID_A_PLAY_COMPLETE,
+
+        EM_MESSAGE_ID_V_SAVE_RENDER_PROGRESS,
+        EM_MESSAGE_ID_A_SAVE_PLAY_PROGRESS,
+
+        EM_MESSAGE_ID_V_CUT_RENDER_COMPLETE,
+        EM_MESSAGE_ID_A_CUT_PLAY_COMPLETE,
+
+        EM_MESSAGE_ID_ERROR_START = 10000,
+        EM_MESSAGE_ID_ERROR_PREPARE_AUDIO_CTRL_FAILED,
+        EM_MESSAGE_ID_ERROR_PREPARE_AUDIO_DECODER_FAILED,
+        EM_MESSAGE_ID_ERROR_PREPARE_AUDIO_TRACK_FAILED,
+        EM_MESSAGE_ID_ERROR_PREPARE_VIDEO_CTRL_FAILED,
+        EM_MESSAGE_ID_ERROR_PREPARE_VIDEO_DECODER_FAILED,
+    } EMMessageId;
+
+    typedef enum {
+        EM_SAMPLE_RATE_START,
+        EM_SAMPLE_RATE_96 = 96000,
+        EM_SAMPLE_RATE_88_2 = 88200,
+        EM_SAMPLE_RATE_64 = 64000,
+        EM_SAMPLE_RATE_48 = 48000,
+        EM_SAMPLE_RATE_44_1 = 44100,
+        EM_SAMPLE_RATE_32 = 32000,
+        EM_SAMPLE_RATE_24 = 24000,
+        EM_SAMPLE_RATE_22_5 = 22050,
+        EM_SAMPLE_RATE_16 = 16000,
+        EM_SAMPLE_RATE_12 = 12000,
+        EM_SAMPLE_RATE_11_025 = 11025,
+        EM_SAMPLE_RATE_8 = 8000,
+        EM_SAMPLE_RATE_7_35 = 7350
+    } EMSampleRate;
+
+    typedef enum {
+        EM_SOURCE_START,
+        EM_SOURCE_FILE,
+        EM_SOURCE_WEBP,
+        EM_SOURCE_BITMAP,
+        EM_SOURCE_SILENCE,
+        EM_SOURCE_MULTI,
+        EM_SOURCE_END
+    } EMSource;
+
+    typedef enum {
+        EM_TRACK_START,
+        EM_TRACK_VIDEO,
+        EM_TRACK_AUDIO,
+        EM_TRACK_SUBTILTLE,
+        EM_TRACK_END
+    } EMTrack;
+
+    typedef enum {
+        EM_A_FILTER_START,
+        EM_A_FILTER_SOURCE,
+        EM_A_FILTER_FORMAT,
+        EM_A_FILTER_VOLUME,
+        EM_A_FILTER_MIX,
+        EM_A_FILTER_PITCH_TEMPO_RATE,
+        EM_A_FILTER_SINK,
+        EM_A_FILTER_END
+    } EMAFilter;
+
+    typedef enum {
+        EM_V_FILTER_START,
+        EM_V_FILTER_LUT,
+        EM_V_FILTER_MASK,
+        EM_V_FILTER_BLUR,
+        EM_V_FILTER_END
+    } EMVFilter;
+
+    typedef enum {
+        EM_EFFECT_START,
+        EM_EFFECT_TRANSFORM_COLOR,
+        EM_EFFECT_MASK,
+        EM_EFFECT_BLUR,
+        EM_EFFECT_NON_LINEAR,
+        EM_EFFECT_END
+    } EMEffect;
+
+    typedef enum {
+        EM_TRANSITION_START,
+        EM_TRANSITION_END
+    } EMTransition;
+
+    /// 像素格式
+    typedef enum {
+        EM_PIXEL_FORMAT_START,
+        EM_PIXEL_FORMAT_RGBA_8888,
+        EM_PIXEL_FORMAT_I420, //只能作为输入格式
+        EM_PIXEL_FORMAT_ARGB_8888,
+        EM_PIXEL_FORMAT_RGB_565,
+        EM_PIXEL_FORMAT_ARGB_4444,
+        EM_PIXEL_FORMAT_END
+    } EMPixelFormat;
+
+    typedef enum {
+        EM_TEXTURE_Y_OR_RGBA,
+        EM_TEXTURE_U,
+        EM_TEXTURE_V,
+        EM_TEXTURE_END
+    } EMTexture;
+
+    typedef enum {
+        EM_DIRECT_X,
+        EM_DIRECT_Y,
+        EM_DIRECT_Z,
+        EM_DIRECT_END
+    } EMDirection;
+
+    typedef enum {
+        EM_PLAYER_STATUS_IDLE,
+        EM_PLAYER_STATUS_INITIALIZED,
+        EM_PLAYER_STATUS_PREPAREING,
+        EM_PLAYER_STATUS_PREPARED,
+        EM_PLAYER_STATUS_STARTED,
+        EM_PLAYER_STATUS_PAUSED,
+        EM_PLAYER_STATUS_STOPPED,
+        EM_PLAYER_STATUS_COMPLETED,
+        EM_PLAYER_STATUS_RELEASED,
+        EM_PLAYER_STATUS_ERROE
+    } EMPlayerStatus;
+
+
+    typedef enum {
+        EM_CTRL_MESSAGE_START,
+        EM_CTRL_MESSAGE_SEEK,
+        EM_CTRL_MESSAGE_LOC_PREVIEW,
+        EM_CTRL_MESSAGE_END
+    } EMCtrlMsg;
+}
+#endif //MEDIAENGINE_STRUCT_H

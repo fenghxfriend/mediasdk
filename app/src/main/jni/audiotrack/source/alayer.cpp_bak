@@ -1,0 +1,299 @@
+//
+// Created by ASUS on 2018/4/17.
+//
+
+#include <algorithm>
+#include "alayer.h_bak"
+
+
+namespace paomiantv {
+//
+//    std::vector<CALayer *> CALayer::m_svPool;
+//    CLock CALayer::m_sLock;
+//
+//    CALayer::CALayer() : m_ptHead(NULL),
+//                         m_ptTail(NULL),
+//                         m_uFilterSize(0),
+//                         m_eSampleRate(EM_SAMPLE_RATE_START),
+//                         m_byChannel(0),
+//                         m_byBitsPerSample(0) {
+//        m_pLock = new CLock;
+//        reset();
+//    }
+//
+//    CALayer::~CALayer() {
+//        reset();
+//        if (m_pLock != NULL) {
+//            delete m_pLock;
+//            m_pLock = NULL;
+//        }
+//    }
+//
+//    void CALayer::clearFilters() {
+//        CAutoLock autoLock(m_pLock);
+//        TAFilterComplexNode *tmp = NULL;
+//        while (m_ptHead != NULL) {
+//            tmp = m_ptHead;
+//            m_ptHead = tmp->m_ptNext;
+//            if (tmp->m_pcFilter != NULL) {
+//                delete tmp->m_pcFilter;
+//            }
+//            delete tmp;
+//        }
+//        m_ptHead = NULL;
+//        m_ptTail = NULL;
+//        m_uFilterSize = 0;
+//    }
+//
+//    void CALayer::reset() {
+//        CAutoLock autoLock(m_pLock);
+//        clearFilters();
+//        m_byBitsPerSample = 0;
+//        m_byChannel = 0;
+//        m_eSampleRate = EM_SAMPLE_RATE_START;
+//    }
+//
+//    CALayer *CALayer::create() {
+//        CALayer *re = NULL;
+//        m_sLock.lock();
+//
+//        if (!m_svPool.empty()) {
+//            CALayer *layer = m_svPool.back();
+//            m_svPool.pop_back();
+//            re = layer;
+//        } else {
+//            re = new CALayer();
+//        }
+//
+//        m_sLock.unlock();
+//        return re;
+//    }
+//
+//    void CALayer::release(CALayer *layer) {
+//        m_sLock.lock();
+//        if (layer != NULL) {
+//            std::vector<CALayer *>::iterator it;
+//            it = std::find(m_svPool.begin(), m_svPool.end(), layer);
+//            if (it == m_svPool.end()) {
+//                //vec中不存在value值
+//                m_svPool.push_back(layer);
+//            }
+//            m_svPool.push_back(layer);
+//        }
+//        m_sLock.unlock();
+//    }
+//
+//    void CALayer::clear() {
+//        m_sLock.lock();
+//        int i = 0;
+//        while (i < m_svPool.size()) {
+//            delete m_svPool[i];
+//            i++;
+//        }
+//        m_svPool.clear();
+//        m_sLock.unlock();
+//    }
+//
+//    BOOL32 CALayer::pushFilter(CAFilterComplex *pcFilter) {
+//        CAutoLock autoLock(m_pLock);
+//        if (pcFilter == NULL || pcFilter->getOutputHeight() == 0 ||
+//            pcFilter->getOutputWidth() == 0) {
+//            LOGW("filter do not initialize");
+//            return FALSE;
+//        }
+//        TAFilterComplexNode *node = new TAFilterComplexNode;
+//        node->m_pcFilter = pcFilter;
+//        if (m_ptHead == NULL) {
+//            m_ptHead = node;
+//            m_ptTail = node;
+//        } else {
+//            addFrameBuffers(m_ptTail->m_uFrameBuffer, m_ptTail->m_pcFrameBufferTexture);
+//            m_ptTail->m_ptNext = node;
+//            node->m_ptPre = m_ptTail;
+//            m_ptTail = node;
+//        }
+//        m_uFilterSize++;
+//        return TRUE;
+//    }
+//
+//    BOOL32 CALayer::popFilter(CAFilterComplex *&pcFilter) {
+//        CAutoLock autoLock(m_pLock);
+//        if (m_uFilterSize == 0 || m_ptTail == NULL) {
+//            LOGW("list size is 0");
+//            pcFilter = NULL;
+//            return FALSE;
+//        } else {
+//            pcFilter = m_ptTail->m_pcFilter;
+//            if (m_uFilterSize == 1) {
+//                deleteFrameBuffers(m_ptTail->m_uFrameBuffer, m_ptTail->m_pcFrameBufferTexture);
+//                delete m_ptTail;
+//                m_ptTail = NULL;
+//                m_ptHead = NULL;
+//            } else {
+//                TAFilterComplexNode *tmp = m_ptTail;
+//                m_ptTail = tmp->m_ptPre;
+//                m_ptTail->m_ptNext = NULL;
+//                deleteFrameBuffers(m_ptTail->m_uFrameBuffer, m_ptTail->m_pcFrameBufferTexture);
+//                deleteFrameBuffers(tmp->m_uFrameBuffer, tmp->m_pcFrameBufferTexture);
+//                pcFilter = tmp->m_pcFilter;
+//                delete tmp;
+//            }
+//        }
+//        m_uFilterSize--;
+//        return TRUE;
+//    }
+//
+//    BOOL32 CALayer::insertFilter(CAFilterComplex *pcFilter, u32 index) {
+//        CAutoLock autoLock(m_pLock);
+//        if (pcFilter == NULL || pcFilter->getOutputHeight() == 0 ||
+//            pcFilter->getOutputWidth() == 0) {
+//            LOGW("filter do not initialize");
+//            return FALSE;
+//        }
+//        TAFilterComplexNode *node = new TAFilterComplexNode;
+//        node->m_pcFilter = pcFilter;
+//        if (index >= m_uFilterSize) {
+//            if (m_ptHead == NULL) {
+//                m_ptHead = node;
+//                m_ptTail = node;
+//            } else {
+//                addFrameBuffers(m_ptTail->m_uFrameBuffer, m_ptTail->m_pcFrameBufferTexture);
+//                m_ptTail->m_ptNext = node;
+//                node->m_ptPre = m_ptTail;
+//                m_ptTail = node;
+//            }
+//        } else {
+//            TAFilterComplexNode *curr = m_ptHead;
+//            TAFilterComplexNode *pre = curr == NULL ? NULL : curr->m_ptPre;
+//            TAFilterComplexNode *next = curr == NULL ? NULL : curr->m_ptNext;
+//            while (index != 0 && curr != NULL && next != NULL) {
+//                curr = curr->m_ptNext;
+//                pre = curr == NULL ? NULL : curr->m_ptPre;
+//                next = curr == NULL ? NULL : curr->m_ptNext;
+//                index--;
+//            }
+//            if (curr == NULL) {
+//                m_ptHead = node;
+//                m_ptTail = node;
+//            } else {
+//                addFrameBuffers(node->m_uFrameBuffer, node->m_pcFrameBufferTexture);
+//                if (pre == NULL) {
+//                    node->m_ptNext = curr;
+//                    curr->m_ptPre = node;
+//                    m_ptHead = node;
+//                } else {
+//                    node->m_ptNext = curr;
+//                    node->m_ptPre = pre;
+//                    curr->m_ptPre->m_ptNext = node;
+//                    curr->m_ptPre = node;
+//                }
+//            }
+//        }
+//        m_uFilterSize++;
+//        return TRUE;
+//    }
+//
+//    BOOL32 CALayer::removeFilter(CAFilterComplex *&pcFilter, u32 index) {
+//        CAutoLock autoLock(m_pLock);
+//        if (m_uFilterSize == 0 || index >= m_uFilterSize || m_ptHead == NULL) {
+//            LOGW("list size is 0");
+//            pcFilter = NULL;
+//            return FALSE;
+//        } else {
+//            TAFilterComplexNode *curr = m_ptHead;
+//            TAFilterComplexNode *pre = curr == NULL ? NULL : curr->m_ptPre;
+//            TAFilterComplexNode *next = curr == NULL ? NULL : curr->m_ptNext;
+//            while (index != 0 && curr != NULL && next != NULL) {
+//                curr = curr->m_ptNext;
+//                pre = curr == NULL ? NULL : curr->m_ptPre;
+//                next = curr == NULL ? NULL : curr->m_ptNext;
+//                index--;
+//            }
+//            if (pre == NULL) {
+//                if (next == NULL) {
+//                    m_ptTail = NULL;
+//                    m_ptHead = NULL;
+//                } else {
+//                    if (curr != NULL) {
+//                        curr->m_ptNext->m_ptPre = NULL;
+//                    }
+//                    m_ptHead = next;
+//                }
+//            } else {
+//                if (next == NULL) {
+//                    if (curr != NULL) {
+//                        curr->m_ptPre->m_ptNext = NULL;
+//                    }
+//                    m_ptTail = pre;
+//                } else {
+//                    if (curr != NULL) {
+//                        curr->m_ptPre->m_ptNext = next;
+//                        curr->m_ptNext->m_ptPre = pre;
+//                    }
+//                }
+//            }
+//            pcFilter = NULL;
+//            if (curr != NULL) {
+//                pcFilter = curr->m_pcFilter;
+//                deleteFrameBuffers(curr->m_uFrameBuffer, curr->m_pcFrameBufferTexture);
+//                delete curr;
+//                return TRUE;
+//            }
+//        }
+//        return FALSE;
+//    }
+//
+//    BOOL32 CALayer::getFilter(CAFilterComplex *&pcFilter, u32 index) {
+//        CAutoLock autoLock(m_pLock);
+//        if (m_uFilterSize == 0 || index >= m_uFilterSize || m_ptHead == NULL) {
+//            pcFilter = NULL;
+//            return FALSE;
+//        }
+//        TAFilterComplexNode *curr = m_ptHead;
+//        TAFilterComplexNode *next = curr == NULL ? NULL : curr->m_ptNext;
+//        while (index != 0 && curr != NULL && next != NULL) {
+//            curr = curr->m_ptNext;
+//            next = curr == NULL ? NULL : curr->m_ptNext;
+//            index--;
+//        }
+//        pcFilter = NULL;
+//        if (curr != NULL) {
+//            pcFilter = curr->m_pcFilter;
+//            return TRUE;
+//        }
+//        return FALSE;
+//    }
+//
+//    void CALayer::process(AVFrame *pFrame) {
+//        CAutoLock autoLock(m_pLock);
+//        AVFrame *previousTexture = pFrame;
+//        TAFilterComplexNode *curr = m_ptHead;
+//        for (int i = 0; i < m_uFilterSize && curr != NULL; i++) {
+//            BOOL32 isNotLast = i < m_uFilterSize - 1;
+//            if (isNotLast) {
+//                glBindFramebuffer(GL_FRAMEBUFFER, curr->m_uFrameBuffer);
+//                glClearColor(0, 0, 0, 0);
+//            }
+//            const float *uv = NULL;
+//            if (i == 0) {
+//                uv = CAFilterComplex::NORMALUV;
+//            } else if (i == m_uFilterSize - 1) {
+//                if (m_uFilterSize % 2 == 0) {
+//                    uv = CAFilterComplex::VFLIPUV;
+//                } else {
+//                    uv = CAFilterComplex::NORMALUV;
+//                }
+//            } else {
+//                uv = CAFilterComplex::NORMALUV;
+//            }
+//            curr->m_pcFilter->draw(previousTexture, CAFilterComplex::CUBE, DEFAULT_GRAPH_POINT_SIZE,
+//                                   uv, DEFAULT_GRAPH_POINT_SIZE);
+//
+//            if (isNotLast) {
+//                glBindFramebuffer(GL_FRAMEBUFFER, 0);
+//                previousTexture = curr->m_pcFrameBufferTexture;
+//            }
+//            curr = curr->m_ptNext;
+//        }
+//    }
+}
